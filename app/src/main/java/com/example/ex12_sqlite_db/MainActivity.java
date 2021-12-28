@@ -14,9 +14,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    myDBHelper myHelper;
     EditText edtName, edtNumber, edtNameResult, edtNumberResult;
     Button btnInit, btnInsert, btnSelect;
+
+    myDBHelper myHelper;
     SQLiteDatabase sqlDB;
 
     @Override
@@ -34,7 +35,11 @@ public class MainActivity extends AppCompatActivity {
         btnInsert = (Button) findViewById(R.id.btnInsert);
         btnSelect = (Button) findViewById(R.id.btnSelect);
 
+        Button btnUpdate = findViewById(R.id.btnUpdate);
+        Button btnDelete = findViewById(R.id.btnDelete);
+
         myHelper = new myDBHelper(this);
+
         btnInit.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 sqlDB = myHelper.getWritableDatabase();
@@ -54,6 +59,35 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         });
+
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sqlDB = myHelper.getWritableDatabase();
+                sqlDB.execSQL(" update groupTBL "
+                             +" set gNumber="+edtNumber.getText().toString()
+                             +" where gName='"+ edtName.getText().toString() +"'; ");
+                sqlDB.close();
+                Toast.makeText(getApplicationContext(), "수정됨", Toast.LENGTH_SHORT).show();
+
+                btnSelect.callOnClick();
+            }
+        });
+
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sqlDB = myHelper.getWritableDatabase();
+                sqlDB.execSQL("delete from groupTBL where gName = '"+ edtName.getText().toString() +"'; ");
+                sqlDB.close();
+
+                Toast.makeText(getApplicationContext(), "삭제됨", Toast.LENGTH_SHORT).show();
+                btnSelect.callOnClick();
+
+            }
+        });
+
+
 
         btnSelect.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -79,13 +113,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public class myDBHelper extends SQLiteOpenHelper {
+    public class myDBHelper extends SQLiteOpenHelper
+    {
         public myDBHelper(Context context) {
+
             super(context, "groupDB", null, 1);
+
         }
 
         @Override
-        public void onCreate(SQLiteDatabase db) {
+        public void onCreate(SQLiteDatabase db)
+        {
             db.execSQL("CREATE TABLE  groupTBL ( gName CHAR(20) PRIMARY KEY, gNumber INTEGER);");
         }
 
